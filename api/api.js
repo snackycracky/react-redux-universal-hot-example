@@ -28,29 +28,16 @@ app.use(bodyParser.json());
 
 app.use((req, res) => {
 
-  const matcher = req.url.split('?')[0].split('/').slice(1);
+  const splittedUrlPath = req.url.split('?')[0].split('/').slice(1);
 
-  let action = false;
-  let params = null;
-  let apiActions = actions;
-  let sliceIndex = 0;
+  const action =
+    splittedUrlPath.
+      map(potentialActionName => implementedActions[potentialActionName]).
+      filter(foundAction => typeof foundAction === 'function')
+      [0];
 
-  for (const actionName of matcher) {
-
-    if (apiActions[actionName]) {
-      action = apiActions[actionName];
-    }
-
-    if (typeof action === 'function') {
-      params = matcher.slice(++sliceIndex);
-      break;
-    }
-    apiActions = action;
-    ++sliceIndex;
-  }
-
-  if (action && typeof action === 'function') {
-    action(req, params)
+  if (action) {
+    action(req, req.query)
       .then((result) => {
         res.json(result);
       }, (reason) => {
