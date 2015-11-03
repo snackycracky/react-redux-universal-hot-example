@@ -34,17 +34,6 @@ function initSocket() {
 
 global.socket = initSocket();
 
-const component = (
-  <ReduxRouter routes={getRoutes(store)} />
-);
-
-ReactDOM.render(
-  <Provider store={store} key="provider">
-    {component}
-  </Provider>,
-  dest
-);
-
 if (process.env.NODE_ENV !== 'production') {
   window.React = React; // enable debugger
 
@@ -53,15 +42,19 @@ if (process.env.NODE_ENV !== 'production') {
   }
 }
 
-if (__DEVTOOLS__) {
+const devToolsComponent = () => {
   const DevTools = require('./containers/DevTools/DevTools');
-  ReactDOM.render(
-    <Provider store={store} key="provider">
-      <div>
-        {component}
-        <DevTools />
-      </div>
-    </Provider>,
-    dest
-  );
-}
+  return <DevTools />;
+};
+
+ReactDOM.render(
+  <Provider store={store} key="provider">
+    <div>
+      <ReduxRouter routes={getRoutes(store)} />
+      {__DEVTOOLS__ ? devToolsComponent() : null}
+    </div>
+  </Provider>,
+  dest
+);
+
+
